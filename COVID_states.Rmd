@@ -1,0 +1,77 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+
+## Introduction
+
+copied from: https://raw.githubusercontent.com/rstudio-education/datascience-box/master/course-materials/application-exercises/ae-01b-covid/covid.Rmd
+
+
+```{r load-packages, warning = FALSE, message = FALSE}
+library(tidyverse)
+library(lubridate)
+library(glue)
+library(scales)
+library(ggrepel)
+library(DT)
+covid_states <- read.csv("covid_by_state.csv")
+
+```
+
+## Data prep
+
+```{r prep-state-data}
+
+states <- c("NY","FL","CT","MA","NJ","TX","CA","WA","IL","ID")
+
+state_data <- covid_states %>%
+# filter for deaths in states of interest
+  filter(state %in% states) %>%
+# filter for positive new_death values
+  filter(new_death >= 0) %>%
+# group for state and dates
+  group_by(state,submission_date) %>%
+  arrange(submission_date) %>%
+  ungroup()
+
+#format submission_date to be of non-character type
+#state_data$submission_date <- as.Date(state_data$submission_date,"%m/%d/%Y")  #option1
+
+state_data = state_data %>%
+  mutate(submission_date = as.Date(submission_date, "%m/%d/%Y"))  #option2
+
+ggplot(data = state_data,
+mapping = aes(x = submission_date, y = new_death, color = state, label = state, group = state)) +
+  # represent cumulative cases with lines
+  geom_line(size = 0.7, alpha = 0.8) +
+  # use pretty colors
+  scale_color_viridis_d() +
+  # better formatting for y-axis
+  scale_y_continuous(labels = label_comma()) +
+  # use minimal theme
+  theme_minimal() +
+  # customize labels
+  labs(
+    x = "Date",
+    y = "Deaths per day",
+    title = "Deaths from COVID-19 per day, selected states",
+    subtitle = "Date as of Sep 24, 2021",
+    caption = "Source: data.cdc.gov/Case-Surveillance/United-States-COVID-19-Cases-and-Deaths-by-State-o/9mfq-cb36/data"
+  )
+
+
+    
+```
+## Cumulative Cases
+
+```{r}
+#states <- c("NY","FL","CT","MA","NJ","TX","CA","WA","IL","ID")
+
+#cum_cases <- covid_states %>%
+#  filter
+```
+
