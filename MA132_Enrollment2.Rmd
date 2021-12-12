@@ -1,0 +1,66 @@
+---
+title: "MA132_Enrollment2"
+output: html_notebook
+---
+
+## Initialization
+
+```{r}
+library(readr)
+library(ggplot2)
+library(caret)
+library(tidyverse)
+library(tidyr)
+library(broom)
+library(ggpubr)
+# install.packages("janitor")
+library(janitor)
+ma132_data <- read.csv("CU_ACAD_DEPT.csv", skip = 1) %>%
+  clean_names()
+
+```
+
+## Data Cleaning
+
+```{r}
+# create new data set of only fields and values that are relevant
+df1 <- ma132_data %>%
+  select(course_id:catalog, term, term_1, tot_enrl, component) %>%
+  filter(subject == "MA", component == "LEC")
+
+
+df2 <- df1 %>%
+  rename(term_id = term, term = term_1) %>%
+  separate(term, c("term", "year")) %>%
+  filter((term == "Fall" & catalog == 131) | (term == "Spring" & catalog == 132))
+  # combine subject & catalog number into one variable course
+  df2$course <- paste(df2$subject, df2$catalog, sep = "")
+
+df3 <- df2 %>%
+  group_by(course, term, year) %>%
+  summarise(enrolled = sum(tot_enrl))
+
+df4 <- df3 %>%
+  mutate(year = as.numeric(year)) %>%
+  mutate(year = year - 2000) %>%
+  mutate(ay = case_when(term == "Fall" ~ str_c(year, "-", year + 1),
+                        term == "Spring" ~ str_c(year - 1, "-", year))) %>%
+  pivot_wider(ay, names_from = c(course, term), values_from = enrolled) %>%
+  arrange(ay)
+  df4 <- df4 [!(df4$ay == "21-22"),]
+
+```
+
+## Plotting/Regression
+
+```{r}
+ggplot(df4, aes(MA131_Fall, MA132_Spring)) +
+geom_point() +
+  geom_point(data = df4, aes(y = MA132_Spring), size = 1) +
+  geom_smooth(method = "lm")
+
+```
+
+
+
+

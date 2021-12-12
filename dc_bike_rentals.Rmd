@@ -1,0 +1,64 @@
+---
+title: "DC Bike Rentals"
+output: html_notebook
+---
+
+```{r}
+#install.packages("janitor")
+
+library(devtools)
+library(hms)
+library(tidyverse)
+library(tidyr)
+library(dplyr)
+library(readr)
+library(dsbox)
+library(janitor)
+library(lubridate)
+
+dcbikeshare <- dcbikeshare %>%
+  clean_names()
+capshare <- read_csv("202109-capitalbikeshare-tripdata.csv") %>%
+  clean_names()
+
+```
+
+```{r}
+# df1 <- capshare %>%
+#   separate(started_at, c("start_date", "start_time"), sep = " ") %>%
+#   separate(ended_at, c("end_date", "end_time"), sep = " ")
+
+# df2 <- df1 %>%
+#   filter(start_date != end_date)
+
+df2 <- capshare %>%
+  filter(mday(started_at) == 1)
+
+df3 <- df2 %>%
+  mutate(hr = hour(started_at))
+
+  
+```
+
+## Computing ridership vs time
+
+```{r}
+df4 <- capshare %>%
+  #filter(mday(started_at) < 8) %>%
+  select(rideable_type, start = started_at, end = ended_at) %>%
+  pivot_longer(cols = start:end, names_to = "type", values_to = "time") %>%
+  arrange(time) %>%
+  mutate(inc = case_when(
+    type == "start" ~ 1,
+    type == "end" ~ -1
+  ), riders = cumsum(inc))
+  
+```
+
+```{r}
+df4 %>% 
+  mutate(day = mday(time)) %>%
+  ggplot(aes(x = time, y = riders)) + geom_point(size = .5, alpha = .02) + geom_line() + facet_wrap(~day)
+
+```
+
