@@ -1,5 +1,5 @@
 # DS-241-Portfolio
-This repository contains some of the rmd files that I worked on in my Introduction to Data Science class. The projects I worked on were introductory-level tutorials and guided assignments that taught the basics of filtering, grouping, joining, and general visualization and interpretation of data.
+This repository contains some of the rmd files that I worked on in my Introduction to Data Science class taught by @jskufca. The projects I worked on were introductory-level tutorials and guided assignments that taught the basics of filtering, grouping, joining, and general visualization and interpretation of data. This was a very imformative and challenging course and I have a lot to show for it, here's some of what I was able to accomplish!
 
 COVID.Rmd: This project stemmed from an existing Rmd file of a basic but well documented analysis of covid cases by country. Key concepts from this were literate programming and the use of the tidyverse package.
 
